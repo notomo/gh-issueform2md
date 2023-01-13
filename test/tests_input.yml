@@ -1,0 +1,42 @@
+name: Test
+description: description
+labels: [label1, label2]
+assignees: [user1, user2]
+body:
+
+  - type: markdown
+    attributes:
+      value: |
+        [markdown value](https://example.com)
+
+  - type: textarea
+    attributes:
+      label: Textarea label
+      description: |
+        textarea description
+      placeholder: |
+        textarea placeholder
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Input label
+      description: input description
+      placeholder: input placeholder
+
+  - type: dropdown
+    attributes:
+      label: Dropdown label
+      description: dropdown description
+      options:
+        - a
+        - b
+
+  - type: checkboxes
+    attributes:
+      label: Checkboxes label
+      description: checkboxes description
+      options:
+        - label: a
+        - label: b

@@ -1,0 +1,4 @@
+(executable
+ (public_name gh-issueform2md)
+ (name main)
+ (libraries issueform2md))
