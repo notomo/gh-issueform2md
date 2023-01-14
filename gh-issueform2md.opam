@@ -1,0 +1,14 @@
+opam-version: "2.0"
+maintainer: "notomo"
+authors: ["notomo"]
+homepage: "https://github.com/notomo/gh-issueform2md"
+dev-repo: "git+https://github.com/notomo/gh-issueform2md.git"
+bug-reports: "https://github.com/notomo/gh-issueform2md/issues"
+description: "gh extension to convert yaml format issue template to markdown"
+synopsis: "Convert yaml format issue template to markdown"
+depends: [
+  "ocaml" {>= "5.0.0"}
+  "dune" {>= "3.6.1"}
+  "yaml" {>= "3.1.0"}
+  "ocamlformat" {with-test}
+]

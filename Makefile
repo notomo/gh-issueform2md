@@ -1,28 +1,39 @@
 GH_NAME:=issueform2md
 BIN_NAME:=gh-${GH_NAME}
 
-build: FORCE
-	dune build
+# to create dummy file before build
+$(BIN_NAME):
+	echo '#!/bin/sh' > ${BIN_NAME}
+	chmod +x ${BIN_NAME}
+
+build: $(BIN_NAME) FORCE
+	opam exec -- dune build
 	cp -f ./_build/install/default/bin/${BIN_NAME} ${BIN_NAME}
 
 clean:
-	dune clean
+	opam exec -- dune clean
 
 test: build
-	dune test
+	opam exec -- dune test
 
 start:
-	cat ./test/tests_input.yml | dune exec ${BIN_NAME}
+	cat ./test/tests_input.yml | opam exec -- dune exec ${BIN_NAME}
 
-install: build
+setup:
+	opam install ./gh-issueform2md.opam --yes --deps-only --with-test
+
+install: setup build
 	gh extension remove ${GH_NAME} || echo
 	gh extension install .
 
 repl:
-	dune utop lib --watch
+	opam exec -- dune utop lib --watch
 
 format:
-	dune fmt
+	opam exec -- dune fmt
+
+lint:
+	opam lint
 
 FORCE:
 .PHONY: FORCE
