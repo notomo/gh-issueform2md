@@ -1,6 +1,7 @@
 opam-version: "2.0"
 maintainer: "notomo"
 authors: ["notomo"]
+license: "MIT"
 homepage: "https://github.com/notomo/gh-issueform2md"
 dev-repo: "git+https://github.com/notomo/gh-issueform2md.git"
 bug-reports: "https://github.com/notomo/gh-issueform2md/issues"
