@@ -79,7 +79,10 @@ let rec extract keys (values : (string * Yaml.value) list) =
   | [], (_, v) :: _ -> Some v
   | _, [] -> None
   | key :: rest_keys, (k, v) :: xs ->
-      if key = k then match v with `O xs -> extract rest_keys xs | _ -> Some v
+      if key = k then
+        match v with
+        | `O xs -> extract rest_keys xs
+        | _ -> Some v
       else extract (key :: rest_keys) xs
 
 let to_string = function
@@ -93,7 +96,11 @@ let to_string_option = function
 
 let to_string_list = function
   | Some (`A xs) ->
-      List.map (function `String s -> s | _ -> failwith "unexpected type") xs
+      List.map
+        (function
+          | `String s -> s
+          | _ -> failwith "unexpected type")
+        xs
   | Some _ -> failwith "unexpected type"
   | None -> []
 
@@ -115,7 +122,9 @@ let to_checkboxes_options = function
   | None -> []
   | _ -> failwith "unexpected checkbox options"
 
-let to_bool = function Some (`Bool x) -> x | _ -> false
+let to_bool = function
+  | Some (`Bool x) -> x
+  | _ -> false
 
 let yaml_value_to_markdown_element values =
   Markdown
@@ -214,7 +223,8 @@ let from_yaml_to_issue_form content =
           labels =
             List.map
               (function
-                | `String s -> s | _ -> failwith "unexpected label type")
+                | `String s -> s
+                | _ -> failwith "unexpected label type")
               xs;
         }
     | "assignees", `A xs ->
@@ -223,7 +233,8 @@ let from_yaml_to_issue_form content =
           assignees =
             List.map
               (function
-                | `String s -> s | _ -> failwith "unexpected assignee type")
+                | `String s -> s
+                | _ -> failwith "unexpected assignee type")
               xs;
         }
     | "body", `A xs ->
@@ -284,7 +295,9 @@ let from_issue_form_to_markdown_format form =
       form.description;
       {|
 |};
-      (match form.title with Some x -> "title: " ^ x | _ -> "");
+      (match form.title with
+      | Some x -> "title: " ^ x
+      | _ -> "");
       (if List.length form.labels <> 0 then
        "labels: " ^ String.concat ", " form.labels ^ {|
 |}
@@ -310,7 +323,9 @@ let from_issue_form_to_markdown_format form =
 |} ^ x ^ {|-->
 |}
                    | None -> "")
-                 ^ (match x.attributes.value with Some x -> x | None -> "")
+                 ^ (match x.attributes.value with
+                   | Some x -> x
+                   | None -> "")
                  ^ {|
 |}
              | Input x -> "### " ^ x.attributes.label ^ {|: 

@@ -3,7 +3,8 @@ let read_stdin_all () =
     try
       let line = read_line () in
       aux (line :: acc)
-    with End_of_file -> acc
+    with
+    | End_of_file -> acc
   in
   String.concat "\n" (List.rev (aux []))
 
