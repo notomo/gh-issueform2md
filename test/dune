@@ -2,7 +2,7 @@
  (with-stdout-to
   tests.output
   (with-stdin-from
-   tests_input.yml
+   input.yml
    (run ../gh-issueform2md))))
 
 (rule
