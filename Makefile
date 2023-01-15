@@ -12,6 +12,7 @@ build: $(BIN_NAME) FORCE
 
 clean:
 	opam exec -- dune clean
+	rm -f ${BIN_NAME}
 
 test: build
 	opam exec -- dune test

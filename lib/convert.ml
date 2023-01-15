@@ -1,78 +1,8 @@
-let from_str_to_yaml str = Yaml.of_string str
-
-type element_markdown_attributes = { value : string }
-type element_markdown = { attributes : element_markdown_attributes }
-type element_validations = { required : bool }
-
-type element_textarea_attributes = {
-  label : string;
-  description : string option;
-  placeholder : string option;
-  value : string option;
-  render : string option;
-  id : string option;
-}
-
-type element_textarea = {
-  attributes : element_textarea_attributes;
-  validations : element_validations;
-}
-
-type element_input_attributes = {
-  label : string;
-  description : string option;
-  placeholder : string option;
-  value : string option;
-  id : string option;
-}
-
-type element_input = {
-  attributes : element_input_attributes;
-  validations : element_validations;
-}
-
-type element_dropdown_attributes = {
-  label : string;
-  description : string option;
-  multiple : bool;
-  options : string list;
-  id : string option;
-}
-
-type element_dropdown = {
-  attributes : element_dropdown_attributes;
-  validations : element_validations;
-}
-
-type element_checkboxes_option = { label : string }
-
-type element_checkboxes_attributes = {
-  label : string;
-  description : string option;
-  options : element_checkboxes_option list;
-  id : string option;
-}
-
-type element_checkboxes = {
-  attributes : element_checkboxes_attributes;
-  validations : element_validations;
-}
-
-type element =
-  | Markdown of element_markdown
-  | Textarea of element_textarea
-  | Input of element_input
-  | Dropdown of element_dropdown
-  | Checkboxes of element_checkboxes
-
-type issue_form = {
-  name : string;
-  description : string;
-  title : string option;
-  labels : string list;
-  assignees : string list;
-  body : element list;
-}
+let from_string_to_yaml str =
+  let parsed = Yaml.of_string str in
+  match parsed with
+  | Ok content -> content
+  | Error _ -> failwith "parse yaml"
 
 let rec extract keys (values : (string * Yaml.value) list) =
   match (keys, values) with
@@ -103,6 +33,8 @@ let to_string_list = function
         xs
   | Some _ -> failwith "unexpected type"
   | None -> []
+
+open Form
 
 let to_checkboxes_options = function
   | Some (`A xs) ->
@@ -281,77 +213,3 @@ let from_yaml_to_issue_form content =
       in
       fold_forms form (List.map (add_form_field form) xs)
   | _ -> failwith "invalid form"
-
-let from_issue_form_to_markdown_format form =
-  String.concat ""
-    [
-      {|---
-|};
-      "name: ";
-      form.name;
-      {|
-|};
-      "about: ";
-      form.description;
-      {|
-|};
-      (match form.title with
-      | Some x -> "title: " ^ x
-      | _ -> "");
-      (if List.length form.labels <> 0 then
-       "labels: " ^ String.concat ", " form.labels ^ {|
-|}
-      else "");
-      (if List.length form.assignees <> 0 then
-       "assignees: " ^ String.concat ", " form.assignees ^ {|
-|}
-      else "");
-      {|
----
-
-|};
-      String.concat ""
-        (List.map
-           (function
-             | Markdown x -> x.attributes.value ^ {|
-|}
-             | Textarea x ->
-                 "### " ^ x.attributes.label ^ {|
-|}
-                 ^ (match x.attributes.description with
-                   | Some x -> {|<!--
-|} ^ x ^ {|-->
-|}
-                   | None -> "")
-                 ^ (match x.attributes.value with
-                   | Some x -> x
-                   | None -> "")
-                 ^ {|
-|}
-             | Input x -> "### " ^ x.attributes.label ^ {|: 
-
-|}
-             | Dropdown x ->
-                 "### " ^ x.attributes.label ^ {|
-
-|}
-                 ^ String.concat {|
-|}
-                     (List.map (fun o -> "- [ ] " ^ o) x.attributes.options)
-                 ^ {|
-
-|}
-             | Checkboxes x ->
-                 "### " ^ x.attributes.label ^ {|
-
-|}
-                 ^ String.concat {|
-|}
-                     (List.map
-                        (fun (o : element_checkboxes_option) ->
-                          "- [ ] " ^ o.label)
-                        x.attributes.options)
-                 ^ {|
-|})
-           form.body);
-    ]
