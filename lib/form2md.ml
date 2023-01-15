@@ -1,55 +1,56 @@
+let to_string = function
+  | Some x -> x
+  | None -> ""
+
+let prefixed prefix = function
+  | Some x -> prefix ^ x
+  | None -> ""
+
+let prefixed_list prefix = function
+  | [] -> ""
+  | xs -> prefix ^ String.concat ", " xs ^ "\n"
+
+let comment_out = function
+  | Some x -> Some ("<!--\n" ^ x ^ "-->\n")
+  | None -> None
+
+let to_checkbox str = "- [ ] " ^ str
+let h3 str = "### " ^ str
+
 let convert (form : Form.t) =
-  String.concat ""
-    [
-      "---\n";
-      "name: ";
-      form.name;
-      "\n";
-      "about: ";
-      form.description;
-      "\n";
-      (match form.title with
-      | Some x -> "title: " ^ x
-      | _ -> "");
-      (if List.length form.labels <> 0 then
-       "labels: " ^ String.concat ", " form.labels ^ "\n"
-      else "");
-      (if List.length form.assignees <> 0 then
-       "assignees: " ^ String.concat ", " form.assignees ^ "\n"
-      else "");
-      "\n---\n\n";
-      String.concat ""
-        (List.map
-           (function
-             | Form.ElementMarkdown x -> x.attributes.value ^ "\n"
-             | Form.ElementTextarea x ->
-                 "### "
-                 ^ x.attributes.label
-                 ^ "\n"
-                 ^ (match x.attributes.description with
-                   | Some x -> "<!--\n" ^ x ^ "-->\n"
-                   | None -> "")
-                 ^ (match x.attributes.value with
-                   | Some x -> x
-                   | None -> "")
-                 ^ "\n"
-             | Form.ElementInput x -> "### " ^ x.attributes.label ^ ": \n\n"
-             | Form.ElementDropdown x ->
-                 "### "
-                 ^ x.attributes.label
-                 ^ "\n\n"
-                 ^ String.concat "\n"
-                     (List.map (fun o -> "- [ ] " ^ o) x.attributes.options)
-                 ^ "\n\n"
-             | Form.ElementCheckboxes x ->
-                 "### "
-                 ^ x.attributes.label
-                 ^ "\n\n"
-                 ^ String.concat "\n"
-                     (List.map
-                        (fun (o : Form.Checkboxes.option_) ->
-                          "- [ ] " ^ o.label)
-                        x.attributes.options)
-                 ^ "\n")
-           form.body);
-    ]
+  [
+    "---\n";
+    "name: " ^ form.name ^ "\n";
+    "about: " ^ form.description ^ "\n";
+    prefixed "title: " form.title;
+    prefixed_list "labels: " form.labels;
+    prefixed_list "assignees: " form.assignees;
+    "\n---\n\n";
+    form.body
+    |> List.map (function
+         | Form.ElementMarkdown x -> x.attributes.value ^ "\n"
+         | Form.ElementTextarea x ->
+             h3 x.attributes.label
+             ^ "\n\n"
+             ^ (x.attributes.description |> comment_out |> to_string)
+             ^ (x.attributes.value |> to_string)
+             ^ "\n"
+         | Form.ElementInput x -> h3 x.attributes.label ^ ": \n\n"
+         | Form.ElementDropdown x ->
+             h3 x.attributes.label
+             ^ "\n\n"
+             ^ (x.attributes.options
+               |> List.map to_checkbox
+               |> String.concat "\n")
+             ^ "\n\n"
+         | Form.ElementCheckboxes x ->
+             h3 x.attributes.label
+             ^ "\n\n"
+             ^ (x.attributes.options
+               |> List.map (fun (o : Form.Checkboxes.option_) ->
+                      o.label |> to_checkbox)
+               |> String.concat "\n")
+             ^ "\n\n")
+    |> String.concat "";
+  ]
+  |> String.concat ""
