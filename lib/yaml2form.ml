@@ -1,9 +1,3 @@
-let from_string_to_yaml str =
-  let parsed = Yaml.of_string str in
-  match parsed with
-  | Ok content -> content
-  | Error _ -> failwith "parse yaml"
-
 let rec extract keys (values : (string * Yaml.value) list) =
   match (keys, values) with
   | [], (_, v) :: _ -> Some v
@@ -34,36 +28,18 @@ let to_string_list = function
   | Some _ -> failwith "unexpected type"
   | None -> []
 
-let to_checkboxes_options = function
-  | Some (`A xs) ->
-      List.map
-        (fun x ->
-          match x with
-          | `O values -> (
-              let label = extract [ "label" ] values in
-              match label with
-              | Some (`String x) -> ({ label = x } : Form.Checkboxes.option_)
-              | Some x ->
-                  failwith
-                    ("unexpected checkbox option: " ^ Yaml.to_string_exn x)
-              | None -> failwith "unexpected checkbox option")
-          | _ -> failwith "")
-        xs
-  | None -> []
-  | _ -> failwith "unexpected checkbox options"
-
 let to_bool = function
   | Some (`Bool x) -> x
   | _ -> false
 
-let yaml_value_to_markdown_element values =
+let convert_to_markdown values =
   Form.ElementMarkdown
     {
       attributes =
         { value = to_string (extract [ "attributes"; "value" ] values) };
     }
 
-let yaml_value_to_textarea_element values =
+let convert_to_textarea values =
   Form.ElementTextarea
     {
       attributes =
@@ -81,7 +57,7 @@ let yaml_value_to_textarea_element values =
         { required = to_bool (extract [ "validations"; "required" ] values) };
     }
 
-let yaml_value_to_input_element values =
+let convert_to_input values =
   Form.ElementInput
     {
       attributes =
@@ -98,7 +74,7 @@ let yaml_value_to_input_element values =
         { required = to_bool (extract [ "validations"; "required" ] values) };
     }
 
-let yaml_value_to_dropdown_element values =
+let convert_to_dropdown values =
   Form.ElementDropdown
     {
       attributes =
@@ -114,7 +90,25 @@ let yaml_value_to_dropdown_element values =
         { required = to_bool (extract [ "validations"; "required" ] values) };
     }
 
-let yaml_value_to_checkboxes_element values =
+let convert_to_checkboxes_options = function
+  | Some (`A xs) ->
+      List.map
+        (fun x ->
+          match x with
+          | `O values -> (
+              let label = extract [ "label" ] values in
+              match label with
+              | Some (`String x) -> ({ label = x } : Form.Checkboxes.option_)
+              | Some x ->
+                  failwith
+                    ("unexpected checkbox option: " ^ Yaml.to_string_exn x)
+              | None -> failwith "unexpected checkbox option")
+          | _ -> failwith "")
+        xs
+  | None -> []
+  | _ -> failwith "unexpected checkbox options"
+
+let convert_to_checkboxes values =
   Form.ElementCheckboxes
     {
       attributes =
@@ -123,29 +117,24 @@ let yaml_value_to_checkboxes_element values =
           description =
             to_string_option (extract [ "attributes"; "description" ] values);
           options =
-            to_checkboxes_options (extract [ "attributes"; "options" ] values);
+            convert_to_checkboxes_options
+              (extract [ "attributes"; "options" ] values);
           id = to_string_option (extract [ "attributes"; "id" ] values);
         };
       validations =
         { required = to_bool (extract [ "validations"; "required" ] values) };
     }
 
-let join_form (a : Form.t) (b : Form.t) =
-  let joined : Form.t =
-    {
-      name = (if b.name <> "" then b.name else a.name);
-      description =
-        (if b.description <> "" then b.description else a.description);
-      title = (if b.title <> None then b.title else a.title);
-      labels = (if List.length b.labels <> 0 then b.labels else a.labels);
-      assignees =
-        (if List.length b.assignees <> 0 then b.assignees else a.assignees);
-      body = (if List.length b.body <> 0 then b.body else a.body);
-    }
-  in
-  joined
+let convert_to_body_element values =
+  extract [ "type" ] values |> function
+  | Some (`String "markdown") -> convert_to_markdown values
+  | Some (`String "textarea") -> convert_to_textarea values
+  | Some (`String "input") -> convert_to_input values
+  | Some (`String "dropdown") -> convert_to_dropdown values
+  | Some (`String "checkboxes") -> convert_to_checkboxes values
+  | _ -> failwith "unexpected element type"
 
-let from_yaml_to_issue_form content =
+let convert content =
   let add_form_field (form : Form.t) (k, v) =
     match (k, v) with
     | "name", `String x -> { form with name = x }
@@ -178,24 +167,26 @@ let from_yaml_to_issue_form content =
             List.map
               (fun x ->
                 match x with
-                | `O values -> (
-                    let typ = extract [ "type" ] values in
-                    match typ with
-                    | Some (`String "markdown") ->
-                        yaml_value_to_markdown_element values
-                    | Some (`String "textarea") ->
-                        yaml_value_to_textarea_element values
-                    | Some (`String "input") ->
-                        yaml_value_to_input_element values
-                    | Some (`String "dropdown") ->
-                        yaml_value_to_dropdown_element values
-                    | Some (`String "checkboxes") ->
-                        yaml_value_to_checkboxes_element values
-                    | _ -> failwith "unexpected element type")
+                | `O values -> convert_to_body_element values
                 | _ -> failwith "unexpected")
               xs;
         }
     | _, _ -> failwith "unexpected property"
+  in
+  let join_form (a : Form.t) (b : Form.t) =
+    let joined : Form.t =
+      {
+        name = (if b.name <> "" then b.name else a.name);
+        description =
+          (if b.description <> "" then b.description else a.description);
+        title = (if b.title <> None then b.title else a.title);
+        labels = (if List.length b.labels <> 0 then b.labels else a.labels);
+        assignees =
+          (if List.length b.assignees <> 0 then b.assignees else a.assignees);
+        body = (if List.length b.body <> 0 then b.body else a.body);
+      }
+    in
+    joined
   in
   let rec fold_forms form = function
     | [] -> form

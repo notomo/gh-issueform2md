@@ -1,9 +1,9 @@
-type validations = { required : bool }
-
 module Markdown = struct
   type markdown_attributes = { value : string }
   type t = { attributes : markdown_attributes }
 end
+
+type validations = { required : bool }
 
 module Textarea = struct
   type attributes = {

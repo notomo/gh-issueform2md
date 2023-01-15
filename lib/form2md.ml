@@ -1,4 +1,4 @@
-let render (form : Form.t) =
+let convert (form : Form.t) =
   String.concat ""
     [
       "---\n";

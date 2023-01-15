@@ -1,10 +1,10 @@
 let from_stdin () =
-  let rec append_from_stdin acc =
+  let rec append acc =
     try
       let line = read_line () in
-      append_from_stdin (line :: acc)
+      append (line :: acc)
     with
     | End_of_file -> acc
   in
-  let lines = List.rev (append_from_stdin []) in
+  let lines = List.rev (append []) in
   String.concat "\n" lines
