@@ -34,8 +34,6 @@ let to_string_list = function
   | Some _ -> failwith "unexpected type"
   | None -> []
 
-open Form
-
 let to_checkboxes_options = function
   | Some (`A xs) ->
       List.map
@@ -44,7 +42,7 @@ let to_checkboxes_options = function
           | `O values -> (
               let label = extract [ "label" ] values in
               match label with
-              | Some (`String x) -> { label = x }
+              | Some (`String x) -> ({ label = x } : Form.Checkboxes.option_)
               | Some x ->
                   failwith
                     ("unexpected checkbox option: " ^ Yaml.to_string_exn x)
@@ -59,14 +57,14 @@ let to_bool = function
   | _ -> false
 
 let yaml_value_to_markdown_element values =
-  Markdown
+  Form.ElementMarkdown
     {
       attributes =
         { value = to_string (extract [ "attributes"; "value" ] values) };
     }
 
 let yaml_value_to_textarea_element values =
-  Textarea
+  Form.ElementTextarea
     {
       attributes =
         {
@@ -84,7 +82,7 @@ let yaml_value_to_textarea_element values =
     }
 
 let yaml_value_to_input_element values =
-  Input
+  Form.ElementInput
     {
       attributes =
         {
@@ -101,7 +99,7 @@ let yaml_value_to_input_element values =
     }
 
 let yaml_value_to_dropdown_element values =
-  Dropdown
+  Form.ElementDropdown
     {
       attributes =
         {
@@ -117,7 +115,7 @@ let yaml_value_to_dropdown_element values =
     }
 
 let yaml_value_to_checkboxes_element values =
-  Checkboxes
+  Form.ElementCheckboxes
     {
       attributes =
         {
@@ -132,19 +130,23 @@ let yaml_value_to_checkboxes_element values =
         { required = to_bool (extract [ "validations"; "required" ] values) };
     }
 
-let join_form a b =
-  {
-    name = (if b.name <> "" then b.name else a.name);
-    description = (if b.description <> "" then b.description else a.description);
-    title = (if b.title <> None then b.title else a.title);
-    labels = (if List.length b.labels <> 0 then b.labels else a.labels);
-    assignees =
-      (if List.length b.assignees <> 0 then b.assignees else a.assignees);
-    body = (if List.length b.body <> 0 then b.body else a.body);
-  }
+let join_form (a : Form.t) (b : Form.t) =
+  let joined : Form.t =
+    {
+      name = (if b.name <> "" then b.name else a.name);
+      description =
+        (if b.description <> "" then b.description else a.description);
+      title = (if b.title <> None then b.title else a.title);
+      labels = (if List.length b.labels <> 0 then b.labels else a.labels);
+      assignees =
+        (if List.length b.assignees <> 0 then b.assignees else a.assignees);
+      body = (if List.length b.body <> 0 then b.body else a.body);
+    }
+  in
+  joined
 
 let from_yaml_to_issue_form content =
-  let add_form_field form (k, v) =
+  let add_form_field (form : Form.t) (k, v) =
     match (k, v) with
     | "name", `String x -> { form with name = x }
     | "description", `String x -> { form with description = x }
@@ -201,7 +203,7 @@ let from_yaml_to_issue_form content =
   in
   match content with
   | `O xs ->
-      let form =
+      let form : Form.t =
         {
           name = "";
           description = "";

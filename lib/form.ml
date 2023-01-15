@@ -1,73 +1,72 @@
-type element_markdown_attributes = { value : string }
-type element_markdown = { attributes : element_markdown_attributes }
-type element_validations = { required : bool }
+type validations = { required : bool }
 
-type element_textarea_attributes = {
-  label : string;
-  description : string option;
-  placeholder : string option;
-  value : string option;
-  render : string option;
-  id : string option;
-}
+module Markdown = struct
+  type markdown_attributes = { value : string }
+  type t = { attributes : markdown_attributes }
+end
 
-type element_textarea = {
-  attributes : element_textarea_attributes;
-  validations : element_validations;
-}
+module Textarea = struct
+  type attributes = {
+    label : string;
+    description : string option;
+    placeholder : string option;
+    value : string option;
+    render : string option;
+    id : string option;
+  }
 
-type element_input_attributes = {
-  label : string;
-  description : string option;
-  placeholder : string option;
-  value : string option;
-  id : string option;
-}
+  type t = { attributes : attributes; validations : validations }
+end
 
-type element_input = {
-  attributes : element_input_attributes;
-  validations : element_validations;
-}
+module Input = struct
+  type attributes = {
+    label : string;
+    description : string option;
+    placeholder : string option;
+    value : string option;
+    id : string option;
+  }
 
-type element_dropdown_attributes = {
-  label : string;
-  description : string option;
-  multiple : bool;
-  options : string list;
-  id : string option;
-}
+  type t = { attributes : attributes; validations : validations }
+end
 
-type element_dropdown = {
-  attributes : element_dropdown_attributes;
-  validations : element_validations;
-}
+module Dropdown = struct
+  type attributes = {
+    label : string;
+    description : string option;
+    multiple : bool;
+    options : string list;
+    id : string option;
+  }
 
-type element_checkboxes_option = { label : string }
+  type t = { attributes : attributes; validations : validations }
+end
 
-type element_checkboxes_attributes = {
-  label : string;
-  description : string option;
-  options : element_checkboxes_option list;
-  id : string option;
-}
+module Checkboxes = struct
+  type option_ = { label : string }
 
-type element_checkboxes = {
-  attributes : element_checkboxes_attributes;
-  validations : element_validations;
-}
+  type attributes = {
+    label : string;
+    description : string option;
+    options : option_ list;
+    id : string option;
+  }
 
-type element =
-  | Markdown of element_markdown
-  | Textarea of element_textarea
-  | Input of element_input
-  | Dropdown of element_dropdown
-  | Checkboxes of element_checkboxes
+  type t = { attributes : attributes; validations : validations }
+end
 
-type issue_form = {
+type body_element =
+  | ElementMarkdown of Markdown.t
+  | ElementTextarea of Textarea.t
+  | ElementInput of Input.t
+  | ElementDropdown of Dropdown.t
+  | ElementCheckboxes of Checkboxes.t
+
+type t = {
   name : string;
   description : string;
   title : string option;
   labels : string list;
   assignees : string list;
-  body : element list;
+  body : body_element list;
 }

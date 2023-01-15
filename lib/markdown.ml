@@ -1,6 +1,4 @@
-open Form
-
-let render form =
+let render (form : Form.t) =
   String.concat ""
     [
       "---\n";
@@ -23,8 +21,8 @@ let render form =
       String.concat ""
         (List.map
            (function
-             | Markdown x -> x.attributes.value ^ "\n"
-             | Textarea x ->
+             | Form.ElementMarkdown x -> x.attributes.value ^ "\n"
+             | Form.ElementTextarea x ->
                  "### "
                  ^ x.attributes.label
                  ^ "\n"
@@ -35,21 +33,21 @@ let render form =
                    | Some x -> x
                    | None -> "")
                  ^ "\n"
-             | Input x -> "### " ^ x.attributes.label ^ ": \n\n"
-             | Dropdown x ->
+             | Form.ElementInput x -> "### " ^ x.attributes.label ^ ": \n\n"
+             | Form.ElementDropdown x ->
                  "### "
                  ^ x.attributes.label
                  ^ "\n\n"
                  ^ String.concat "\n"
                      (List.map (fun o -> "- [ ] " ^ o) x.attributes.options)
                  ^ "\n\n"
-             | Checkboxes x ->
+             | Form.ElementCheckboxes x ->
                  "### "
                  ^ x.attributes.label
                  ^ "\n\n"
                  ^ String.concat "\n"
                      (List.map
-                        (fun (o : element_checkboxes_option) ->
+                        (fun (o : Form.Checkboxes.option_) ->
                           "- [ ] " ^ o.label)
                         x.attributes.options)
                  ^ "\n")
