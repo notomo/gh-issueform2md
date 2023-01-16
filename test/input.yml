@@ -24,6 +24,8 @@ body:
       label: Input label
       description: input description
       placeholder: input placeholder
+    validations:
+      required: true
 
   - type: dropdown
     attributes:

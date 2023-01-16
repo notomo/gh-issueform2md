@@ -13,6 +13,10 @@ let comment_out = function
 let to_checkbox str = "- [ ] " ^ str
 let h3 str = "### " ^ str
 
+let required_mark = function
+  | false -> ""
+  | true -> " (\\*)"
+
 let convert (form : Form.t) =
   [
     "---\n";
@@ -27,13 +31,18 @@ let convert (form : Form.t) =
          | Form.ElementMarkdown x -> x.attributes.value ^ "\n"
          | Form.ElementTextarea x ->
              h3 x.attributes.label
+             ^ required_mark x.validations.required
              ^ "\n\n"
              ^ (x.attributes.description |> comment_out |> to_string)
              ^ (x.attributes.value |> to_string)
              ^ "\n"
-         | Form.ElementInput x -> h3 x.attributes.label ^ ": \n\n"
+         | Form.ElementInput x ->
+             h3 x.attributes.label
+             ^ required_mark x.validations.required
+             ^ ": \n\n"
          | Form.ElementDropdown x ->
              h3 x.attributes.label
+             ^ required_mark x.validations.required
              ^ "\n\n"
              ^ (x.attributes.options
                |> List.map to_checkbox
@@ -41,6 +50,7 @@ let convert (form : Form.t) =
              ^ "\n\n"
          | Form.ElementCheckboxes x ->
              h3 x.attributes.label
+             ^ required_mark x.validations.required
              ^ "\n\n"
              ^ (x.attributes.options
                |> List.map (fun (o : Form.Checkboxes.option_) ->

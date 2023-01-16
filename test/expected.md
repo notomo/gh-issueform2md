@@ -8,13 +8,13 @@ assignees: user1, user2
 
 [markdown value](https://example.com)
 
-### Textarea label
+### Textarea label (\*)
 
 <!--
 textarea description
 -->
 
-### Input label: 
+### Input label (\*): 
 
 ### Dropdown label
 
