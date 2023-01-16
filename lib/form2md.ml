@@ -25,6 +25,10 @@ let to_example = function
   | Some x -> Some ("example: " ^ x)
   | None -> None
 
+let multiple_mark = function
+  | true -> Some "Select multiple."
+  | false -> None
+
 let convert (form : Form.t) =
   [
     "---\n";
@@ -65,6 +69,10 @@ let convert (form : Form.t) =
              ^ required_mark x.validations.required
              ^ "\n\n"
              ^ (x.attributes.description |> comment_out |> to_string)
+             ^ (x.attributes.multiple
+               |> multiple_mark
+               |> comment_out
+               |> to_string)
              ^ (x.attributes.options
                |> List.map to_checkbox
                |> String.concat "\n")

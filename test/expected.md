@@ -34,6 +34,9 @@ example: input placeholder
 <!--
 dropdown description
 -->
+<!--
+Select multiple.
+-->
 - [ ] a
 - [ ] b
 

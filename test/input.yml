@@ -33,6 +33,7 @@ body:
     attributes:
       label: Dropdown label
       description: dropdown description
+      multiple: true
       options:
         - a
         - b
