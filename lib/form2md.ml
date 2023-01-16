@@ -64,6 +64,7 @@ let convert (form : Form.t) =
              h3 x.attributes.label
              ^ required_mark x.validations.required
              ^ "\n\n"
+             ^ (x.attributes.description |> comment_out |> to_string)
              ^ (x.attributes.options
                |> List.map to_checkbox
                |> String.concat "\n")
@@ -72,6 +73,7 @@ let convert (form : Form.t) =
              h3 x.attributes.label
              ^ required_mark x.validations.required
              ^ "\n\n"
+             ^ (x.attributes.description |> comment_out |> to_string)
              ^ (x.attributes.options
                |> List.map (fun (o : Form.Checkboxes.option_) ->
                       o.label |> to_checkbox)

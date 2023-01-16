@@ -31,11 +31,17 @@ example: input placeholder
 
 ### Dropdown label
 
+<!--
+dropdown description
+-->
 - [ ] a
 - [ ] b
 
 ### Checkboxes label
 
+<!--
+checkboxes description
+-->
 - [ ] a
 - [ ] b
 
