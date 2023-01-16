@@ -20,7 +20,7 @@ example: textarea placeholder
 -->
 textarea value
 
-### Input label (\*): 
+### Input label (\*): input value
 
 <!--
 input description

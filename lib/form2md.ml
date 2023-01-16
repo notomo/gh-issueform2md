@@ -51,7 +51,9 @@ let convert (form : Form.t) =
          | Form.ElementInput x ->
              h3 x.attributes.label
              ^ required_mark x.validations.required
-             ^ ": \n\n"
+             ^ ": "
+             ^ (x.attributes.value |> to_string)
+             ^ "\n\n"
              ^ (x.attributes.description |> comment_out |> to_string)
              ^ (x.attributes.placeholder
                |> to_example

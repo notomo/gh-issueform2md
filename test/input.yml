@@ -25,6 +25,7 @@ body:
       label: Input label
       description: input description
       placeholder: input placeholder
+      value: input value
     validations:
       required: true
 
