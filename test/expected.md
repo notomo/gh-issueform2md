@@ -12,9 +12,21 @@ assignees: user1, user2
 
 <!--
 textarea description
+
+-->
+<!--
+example: textarea placeholder
+
 -->
 
 ### Input label (\*): 
+
+<!--
+input description
+-->
+<!--
+example: input placeholder
+-->
 
 ### Dropdown label
 
