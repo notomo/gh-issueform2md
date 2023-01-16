@@ -1,35 +1,9 @@
-let rec extract key (values : (string * Yaml.value) list) =
-  match values with
-  | [] -> None
-  | (k, v) :: xs -> if key = k then Some v else extract key xs
-
-let to_string = function
-  | Some (`String x) -> x
-  | _ -> failwith "unexpected string type"
-
-let to_string_option = function
-  | Some (`String x) -> Some x
-  | Some _ -> failwith "unexpected string option type"
-  | None -> None
-
-let to_string_list = function
-  | Some (`A xs) ->
-      List.map
-        (function
-          | `String s -> s
-          | _ -> failwith "unexpected type")
-        xs
-  | Some _ -> failwith "unexpected type"
-  | None -> []
-
-let to_bool = function
-  | Some (`Bool x) -> x
-  | _ -> false
-
-let to_values = function
-  | None -> []
-  | Some (`O values) -> values
-  | Some x -> failwith ("unexpected type: " ^ Yaml.to_string_exn x)
+let extract = List.assoc_opt
+let to_string = Yamlutil.to_string
+let to_string_option = Yamlutil.to_string_option
+let to_string_list = Yamlutil.to_string_list
+let to_bool = Yamlutil.to_bool
+let to_values = Yamlutil.to_values
 
 let to_markdown values =
   let attributes = values |> extract "attributes" |> to_values in
@@ -127,50 +101,27 @@ let to_body_element values =
   | _ -> failwith "unexpected element type"
 
 let convert =
-  let to_string = function
-    | `String x -> x
-    | _ -> failwith "unexpected string type"
-  in
-
   let add_field (form : Form.t) (k, v) =
     match (k, v) with
     | "name", `String x -> { form with name = x }
     | "description", `String x -> { form with description = x }
     | "title", `String x -> { form with title = Some x }
-    | "labels", `A xs -> { form with labels = xs |> List.map to_string }
-    | "assignees", `A xs -> { form with assignees = xs |> List.map to_string }
+    | "labels", `A xs ->
+        { form with labels = xs |> List.map Option.some |> List.map to_string }
+    | "assignees", `A xs ->
+        {
+          form with
+          assignees = xs |> List.map Option.some |> List.map to_string;
+        }
     | "body", `A xs ->
         {
           form with
           body =
             xs
-            |> List.map (fun x ->
-                   match x with
-                   | `O values -> values |> to_body_element
-                   | _ -> failwith "unexpected");
+            |> List.map Option.some
+            |> List.map (fun x -> x |> to_values |> to_body_element);
         }
     | _, _ -> failwith "unexpected property"
-  in
-
-  let join_form (a : Form.t) (b : Form.t) =
-    let joined : Form.t =
-      {
-        name = (if b.name <> "" then b.name else a.name);
-        description =
-          (if b.description <> "" then b.description else a.description);
-        title = (if b.title <> None then b.title else a.title);
-        labels = (if List.length b.labels <> 0 then b.labels else a.labels);
-        assignees =
-          (if List.length b.assignees <> 0 then b.assignees else a.assignees);
-        body = (if List.length b.body <> 0 then b.body else a.body);
-      }
-    in
-    joined
-  in
-
-  let rec fold acc = function
-    | [] -> acc
-    | x :: xs -> fold (join_form acc x) xs
   in
 
   function
@@ -185,5 +136,5 @@ let convert =
           body = [];
         }
       in
-      xs |> List.map (add_field form) |> fold form
+      xs |> List.fold_left add_field form
   | _ -> failwith "invalid form"

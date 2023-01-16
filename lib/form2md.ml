@@ -3,10 +3,6 @@ let to_string = function
   | None -> ""
 
 let prefixed prefix = function
-  | Some x -> prefix ^ x
-  | None -> ""
-
-let prefixed_list prefix = function
   | [] -> ""
   | xs -> prefix ^ String.concat ", " xs ^ "\n"
 
@@ -22,9 +18,9 @@ let convert (form : Form.t) =
     "---\n";
     "name: " ^ form.name ^ "\n";
     "about: " ^ form.description ^ "\n";
-    prefixed "title: " form.title;
-    prefixed_list "labels: " form.labels;
-    prefixed_list "assignees: " form.assignees;
+    prefixed "title: " (form.title |> Option.to_list);
+    prefixed "labels: " form.labels;
+    prefixed "assignees: " form.assignees;
     "\n---\n\n";
     form.body
     |> List.map (function
