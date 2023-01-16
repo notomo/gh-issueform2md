@@ -10,6 +10,10 @@ let comment_out = function
   | Some x -> Some ("<!--\n" ^ x ^ "\n-->\n")
   | None -> None
 
+let newline = function
+  | Some x -> Some (x ^ "\n")
+  | None -> None
+
 let to_checkbox str = "- [ ] " ^ str
 let h3 str = "### " ^ str
 
@@ -42,7 +46,7 @@ let convert (form : Form.t) =
                |> to_example
                |> comment_out
                |> to_string)
-             ^ (x.attributes.value |> to_string)
+             ^ (x.attributes.value |> newline |> to_string)
              ^ "\n"
          | Form.ElementInput x ->
              h3 x.attributes.label

@@ -16,6 +16,7 @@ body:
         textarea description
       placeholder: |
         textarea placeholder
+      value: textarea value
     validations:
       required: true
 

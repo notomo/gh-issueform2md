@@ -18,6 +18,7 @@ textarea description
 example: textarea placeholder
 
 -->
+textarea value
 
 ### Input label (\*): 
 
