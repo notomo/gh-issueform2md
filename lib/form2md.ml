@@ -29,6 +29,10 @@ let multiple_mark = function
   | true -> Some "Select multiple."
   | false -> None
 
+let render_mark = function
+  | Some x -> Some ("The following is rendered as '" ^ x ^ "'.")
+  | None -> None
+
 let convert (form : Form.t) =
   [
     "---\n";
@@ -50,6 +54,7 @@ let convert (form : Form.t) =
                |> to_example
                |> comment_out
                |> to_string)
+             ^ (x.attributes.render |> render_mark |> comment_out |> to_string)
              ^ (x.attributes.value |> newline |> to_string)
              ^ "\n"
          | Form.ElementInput x ->
