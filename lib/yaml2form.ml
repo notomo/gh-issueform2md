@@ -1,5 +1,6 @@
 let extract = List.assoc_opt
 let to_string = Yamlutil.to_string
+let to_list = Yamlutil.to_list
 let to_string_option = Yamlutil.to_string_option
 let to_string_list = Yamlutil.to_string_list
 let to_bool = Yamlutil.to_bool
@@ -59,22 +60,12 @@ let to_dropdown values =
       validations = { required = validations |> extract "required" |> to_bool };
     }
 
-let to_checkboxes_options = function
-  | Some (`A xs) ->
-      List.map
-        (fun x ->
-          match x with
-          | `O values -> (
-              values |> extract "label" |> function
-              | Some (`String x) -> ({ label = x } : Form.Checkboxes.option_)
-              | Some x ->
-                  failwith
-                    ("unexpected checkbox option: " ^ Yaml.to_string_exn x)
-              | None -> failwith "unexpected checkbox option")
-          | _ -> failwith "")
-        xs
-  | None -> []
-  | _ -> failwith "unexpected checkbox options"
+let to_checkboxes_options values =
+  values
+  |> to_list
+  |> List.map (fun x ->
+         Some x |> to_values |> extract "label" |> to_string
+         |> fun x : Form.Checkboxes.option_ -> { label = x })
 
 let to_checkboxes values =
   let attributes = values |> extract "attributes" |> to_values in
@@ -98,43 +89,21 @@ let to_body_element values =
   | Some (`String "input") -> to_input values
   | Some (`String "dropdown") -> to_dropdown values
   | Some (`String "checkboxes") -> to_checkboxes values
-  | _ -> failwith "unexpected element type"
+  | Some (`String x) -> failwith ("unexpected body[n].type: " ^ x)
+  | _ -> failwith "unexpected body[n].type"
 
-let convert =
-  let add_field (form : Form.t) (k, v) =
-    match (k, v) with
-    | "name", `String x -> { form with name = x }
-    | "description", `String x -> { form with description = x }
-    | "title", `String x -> { form with title = Some x }
-    | "labels", `A xs ->
-        { form with labels = xs |> List.map Option.some |> List.map to_string }
-    | "assignees", `A xs ->
-        {
-          form with
-          assignees = xs |> List.map Option.some |> List.map to_string;
-        }
-    | "body", `A xs ->
-        {
-          form with
-          body =
-            xs
-            |> List.map Option.some
-            |> List.map (fun x -> x |> to_values |> to_body_element);
-        }
-    | _, _ -> failwith "unexpected property"
-  in
-
-  function
-  | `O xs ->
-      let form : Form.t =
-        {
-          name = "";
-          description = "";
-          title = None;
-          labels = [];
-          assignees = [];
-          body = [];
-        }
-      in
-      xs |> List.fold_left add_field form
-  | _ -> failwith "invalid form"
+let convert (v : Yaml.value) =
+  let values = Some v |> to_values in
+  ({
+     name = values |> extract "name" |> to_string;
+     description = values |> extract "description" |> to_string;
+     title = values |> extract "title" |> to_string_option;
+     labels = values |> extract "labels" |> to_string_list;
+     assignees = values |> extract "assignees" |> to_string_list;
+     body =
+       values
+       |> extract "body"
+       |> to_list
+       |> List.map (fun x -> Some x |> to_values |> to_body_element);
+   }
+    : Form.t)
