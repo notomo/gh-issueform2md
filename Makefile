@@ -23,9 +23,11 @@ start:
 setup:
 	opam install ./gh-issueform2md.opam --yes --deps-only --with-test
 
-install: setup build
+install_as_extension: build
 	gh extension remove ${GH_NAME} || echo
 	gh extension install .
+
+install: setup install_as_extension
 
 repl:
 	opam exec -- dune utop lib --watch
