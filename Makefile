@@ -17,9 +17,6 @@ clean:
 test: build
 	opam exec -- dune test
 
-start:
-	cat ./test/tests_input.yml | opam exec -- dune exec ${BIN_NAME}
-
 setup:
 	opam install ./gh-issueform2md.opam --yes --deps-only --with-test
 
@@ -28,9 +25,6 @@ install_as_extension: build
 	gh extension install .
 
 install: setup install_as_extension
-
-repl:
-	opam exec -- dune utop lib --watch
 
 format:
 	opam exec -- dune fmt
