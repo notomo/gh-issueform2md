@@ -1,18 +1,13 @@
 GH_NAME:=issueform2md
 BIN_NAME:=gh-${GH_NAME}
+MAIN:=main.exe
 
-# to create dummy file before build
-$(BIN_NAME):
-	echo '#!/bin/sh' > ${BIN_NAME}
-	chmod +x ${BIN_NAME}
-
-build: $(BIN_NAME) FORCE
-	opam exec -- dune build
-	cp -f ./_build/install/default/bin/${BIN_NAME} ${BIN_NAME}
+build: FORCE
+	opam exec -- dune build ./bin
 
 clean:
 	opam exec -- dune clean
-	rm -f ${BIN_NAME}
+	rm -f ${MAIN} ${BIN_NAME}
 
 test: build
 	opam exec -- dune test
@@ -21,6 +16,7 @@ setup:
 	opam install ./gh-issueform2md.opam --yes --deps-only --with-test
 
 install_as_extension: build
+	cp -f ${MAIN} ${BIN_NAME}
 	gh extension remove ${GH_NAME} || echo
 	gh extension install .
 
