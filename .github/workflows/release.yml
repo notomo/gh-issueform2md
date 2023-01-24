@@ -26,10 +26,11 @@ jobs:
 
       - run: make dist
 
-      - name: Create release
+      - name: Create draft release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             dist/*
           draft: true
           fail_on_unmatched_files: true
+          generate_release_notes: true
