@@ -1,4 +1,4 @@
 let convert str =
   str |> Yaml.of_string |> function
-  | Ok value -> value
-  | Error (`Msg x) -> failwith ("parsing yaml: " ^ x)
+  | Ok value -> Ok value
+  | Error (`Msg x) -> Error ("invalid yaml: " ^ x ^ "\n")

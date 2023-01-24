@@ -10,7 +10,7 @@ clean:
 	rm -f ${MAIN} ${BIN_NAME}
 
 test: build
-	opam exec -- dune test
+	OCAMLRUNPARAM=b opam exec -- dune test
 
 setup:
 	opam install ./gh-issueform2md.opam --yes --deps-only --with-test

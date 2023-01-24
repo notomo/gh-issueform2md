@@ -9,3 +9,27 @@
  (alias runtest)
  (action
   (diff ok_want.md ok_got.md)))
+
+(rule
+ (with-stdout-to
+  validation_error_got
+  (with-stdin-from
+   validation_error_input.yml
+   (run ../main.exe -test-mode))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff validation_error_want validation_error_got)))
+
+(rule
+ (with-stdout-to
+  yaml_parse_error_got
+  (with-stdin-from
+   yaml_parse_error_input.yml
+   (run ../main.exe -test-mode))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff yaml_parse_error_want yaml_parse_error_got)))

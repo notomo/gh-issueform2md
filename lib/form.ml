@@ -1,6 +1,6 @@
 module Markdown = struct
-  type markdown_attributes = { value : string }
-  type t = { attributes : markdown_attributes }
+  type attributes = { value : string }
+  type t = { attributes : attributes }
 end
 
 type validations = { required : bool }

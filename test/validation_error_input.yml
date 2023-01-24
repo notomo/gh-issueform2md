@@ -1,0 +1,42 @@
+name: 1
+description: 2
+labels: [label1, null]
+assignees: [1, user2]
+body:
+
+  - type: invalid
+    attributes:
+      value: ok
+
+  - type: textarea
+    attributes:
+      description: 1
+      placeholder: 2
+      value: 3
+    validations:
+      required: 4
+
+  - type: input
+    attributes:
+      label: Input label
+      description: false
+      placeholder: null
+      value: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      description: 1
+      multiple: 2
+      options:
+        - a
+        - 3
+        - b
+
+  - type: checkboxes
+    attributes:
+      description: 1
+      options:
+        - label: 2
+        - label: b
