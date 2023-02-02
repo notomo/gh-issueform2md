@@ -1,5 +1,3 @@
-open Issueform2md
-
 let handle_error =
   let is_test_mode = ref false in
   let opts = [ ("-test-mode", Arg.Set is_test_mode, "For internal use") ] in
@@ -14,6 +12,7 @@ let handle_error =
     exit code
 
 let () =
+  let open Issueform2md in
   ()
   |> Input.from_stdin
   |> Str2yaml.convert
