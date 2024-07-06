@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ocaml/setup-ocaml@v2
+      - uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ env.OCAML_COMPILER }}
           dune-cache: true
