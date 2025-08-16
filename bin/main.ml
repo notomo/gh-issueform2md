@@ -16,12 +16,12 @@ let () =
   ()
   |> Input.from_stdin
   |> Str2yaml.convert
-  |> (function
-       | Ok x -> x
-       | Error e -> e |> handle_error)
+  |> ( function
+  | Ok x -> x
+  | Error e -> e |> handle_error )
   |> Yaml2form.convert
-  |> (function
-       | Ok x -> x
-       | Error e -> e |> Yaml2form.parse_info_to_str |> handle_error)
+  |> ( function
+  | Ok x -> x
+  | Error e -> e |> Yaml2form.parse_info_to_str |> handle_error )
   |> Form2md.convert
   |> print_string
